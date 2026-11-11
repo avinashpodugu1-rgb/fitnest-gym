@@ -1,0 +1,820 @@
+{
+  "info": {
+    "name": "FitNest Gym - Locker API (ST-CSE2D-G01)",
+    "description": "Run the folders top to bottom. Folder 1 holds the three twist tests from the client brief.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "lockerId",
+      "value": "1"
+    },
+    {
+      "key": "lockerId2",
+      "value": "2"
+    },
+    {
+      "key": "memberId",
+      "value": "1"
+    },
+    {
+      "key": "memberId2",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Twist tests (from the brief)",
+      "item": [
+        {
+          "name": "Test 1 - add with floor \"Floor 1\" -> 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"lockerId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A-101\",\n  \"floor\": \"Floor 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 2 - add with floor \"Other\" -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Message lists the allowed values\", () => pm.expect(pm.response.json().error).to.include(\"Floor 1, Floor 2, Floor 3\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A-102\",\n  \"floor\": \"Other\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 3 - update to \"Floor 2\" -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Floor is now Floor 2\", () => pm.expect(pm.response.json().floor).to.eql(\"Floor 2\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A-101\",\n  \"floor\": \"Floor 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers/{{lockerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "{{lockerId}}"
+              ]
+            },
+            "description": "Run Test 1 first so {{lockerId}} is set."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Lockers (CRUD)",
+      "item": [
+        {
+          "name": "Get all lockers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get one locker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers/{{lockerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "{{lockerId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get one locker - not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "99999"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add locker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"lockerId2\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"B-201\",\n  \"floor\": \"Floor 3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add locker - missing name -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"floor\": \"Floor 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update locker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"B-201\",\n  \"floor\": \"Floor 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers/{{lockerId2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "{{lockerId2}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update locker - invalid floor -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Allowed values shown\", () => pm.expect(pm.response.json().error).to.include(\"Allowed values\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"B-201\",\n  \"floor\": \"Floor 9\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lockers/{{lockerId2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "{{lockerId2}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete locker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers/{{lockerId2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "{{lockerId2}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete locker again -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers/{{lockerId2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers",
+                "{{lockerId2}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Search by query parameter",
+      "item": [
+        {
+          "name": "Lockers by floor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Every locker is on Floor 2\", () => pm.response.json().forEach(l => pm.expect(l.floor).to.eql(\"Floor 2\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers?floor=Floor 2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ],
+              "query": [
+                {
+                  "key": "floor",
+                  "value": "Floor 2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Lockers by floor - invalid -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lockers?floor=Other",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lockers"
+              ],
+              "query": [
+                {
+                  "key": "floor",
+                  "value": "Other"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Members",
+      "item": [
+        {
+          "name": "Add member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"memberId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Rao\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add second member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"memberId2\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ravi Kumar\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get all members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add member - empty name -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Allotments and JOIN",
+      "item": [
+        {
+          "name": "Allot locker to member -> 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_id\": {{memberId}},\n  \"locker_id\": {{lockerId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allotments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "allotments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Same locker to second member -> 400 (the client bug)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_id\": {{memberId2}},\n  \"locker_id\": {{lockerId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allotments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "allotments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "JOIN: member name + locker name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Rows have member_name and locker_name\", () => { const r = pm.response.json()[0]; pm.expect(r).to.have.property(\"member_name\"); pm.expect(r).to.have.property(\"locker_name\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/allotments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "allotments"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
