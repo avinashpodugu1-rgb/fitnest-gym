@@ -1,5 +1,7 @@
 # FitNest Gym – Locker Room API
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/avinashpodugu1-rgb/fitnest-gym)
+
 **BDF Group Assignment · Backend Development Fundamentals (Modules 1 to 3)**
 **Group:** ST-CSE2D-G01 · **Theme 1 of 30:** Locker rooms
 **Twist:** Allowed values – a locker's floor must be `Floor 1`, `Floor 2` or `Floor 3`.
@@ -29,6 +31,21 @@ npm start
 ```
 
 The server runs on `http://localhost:3000`. The SQLite file `fitnest.db` is created automatically on the first run.
+
+## Deploy to Render
+
+Click the button below or follow the steps to deploy:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/avinashpodugu1-rgb/fitnest-gym)
+
+1. Open [dashboard.render.com](https://dashboard.render.com) and click **New +** > **Web Service**.
+2. Connect your GitHub repository: `avinashpodugu1-rgb/fitnest-gym`.
+3. Configure settings:
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: `Free`
+4. Click **Deploy Web Service**. Once deployed, Render provides your live URL (e.g. `https://fitnest-gym-api.onrender.com`).
 
 ## Project structure
 
