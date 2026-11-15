@@ -2,6 +2,8 @@
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/avinashpodugu1-rgb/fitnest-gym)
 
+**Live API**: [https://fitnest-gym-api.onrender.com](https://fitnest-gym-api.onrender.com)
+
 **BDF Group Assignment · Backend Development Fundamentals (Modules 1 to 3)**
 **Group:** ST-CSE2D-G01 · **Theme 1 of 30:** Locker rooms
 **Twist:** Allowed values – a locker's floor must be `Floor 1`, `Floor 2` or `Floor 3`.
