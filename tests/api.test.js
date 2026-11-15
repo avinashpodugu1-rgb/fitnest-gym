@@ -288,5 +288,9 @@ describe('FitNest Gym Locker API', () => {
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: 'Invalid JSON body' });
   });
+
+  afterAll(() => {
+    db.close();
+  });
 });
 
