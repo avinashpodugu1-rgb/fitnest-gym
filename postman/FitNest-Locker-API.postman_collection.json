@@ -24,6 +24,10 @@
     {
       "key": "memberId2",
       "value": "2"
+    },
+    {
+      "key": "allotmentId",
+      "value": "1"
     }
   ],
   "item": [
@@ -698,6 +702,49 @@
               ]
             }
           }
+        },
+        {
+          "name": "Update member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Name is updated\", () => pm.expect(pm.response.json().name).to.eql(\"Asha Rao Updated\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Rao Updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members",
+                "{{memberId}}"
+              ]
+            }
+          }
         }
       ]
     },
@@ -712,7 +759,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"allotmentId\", pm.response.json().id);"
                 ]
               }
             }
@@ -810,6 +858,122 @@
               ],
               "path": [
                 "allotments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get one allotment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has member_name and locker_name\", () => {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j).to.have.property(\"member_name\");",
+                  "  pm.expect(j).to.have.property(\"locker_name\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/allotments/{{allotmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "allotments",
+                "{{allotmentId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete member with active allotment -> 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Has active allotment error message\", () => pm.expect(pm.response.json().error).to.include(\"active allotment\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members",
+                "{{memberId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete allotment (release locker) -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Returns message\", () => pm.expect(pm.response.json().message).to.eql(\"Allotment deleted\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/allotments/{{allotmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "allotments",
+                "{{allotmentId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete member after allotment released -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Returns message\", () => pm.expect(pm.response.json().message).to.eql(\"Member deleted\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "members",
+                "{{memberId}}"
               ]
             }
           }

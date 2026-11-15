@@ -19,6 +19,15 @@ router.get('/', (req, res) => {
   res.status(200).json(db.prepare(joinQuery).all());
 });
 
+// GET /allotments/:id  -> single allotment with joined member and locker details
+router.get('/:id', (req, res) => {
+  const allotment = db.prepare(joinQuery + ' WHERE allotments.id = ?').get(req.params.id);
+  if (!allotment) {
+    return res.status(404).json({ error: 'Allotment not found' });
+  }
+  res.status(200).json(allotment);
+});
+
 // POST /allotments  { "member_id": 1, "locker_id": 1 }
 router.post('/', (req, res) => {
   const { member_id, locker_id } = req.body || {};
@@ -43,12 +52,30 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'This locker is already allotted to a member' });
   }
 
-  const result = db
-    .prepare('INSERT INTO allotments (member_id, locker_id) VALUES (?, ?)')
-    .run(member_id, locker_id);
+  try {
+    const result = db
+      .prepare('INSERT INTO allotments (member_id, locker_id) VALUES (?, ?)')
+      .run(member_id, locker_id);
 
-  const created = db.prepare(joinQuery + ' WHERE allotments.id = ?').get(result.lastInsertRowid);
-  res.status(201).json(created);
+    const created = db.prepare(joinQuery + ' WHERE allotments.id = ?').get(result.lastInsertRowid);
+    res.status(201).json(created);
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || (err.message && err.message.includes('UNIQUE'))) {
+      return res.status(400).json({ error: 'This locker is already allotted to a member' });
+    }
+    throw err;
+  }
+});
+
+// DELETE /allotments/:id  (releases the locker without deleting member or locker)
+router.delete('/:id', (req, res) => {
+  const existing = db.prepare('SELECT id FROM allotments WHERE id = ?').get(req.params.id);
+  if (!existing) {
+    return res.status(404).json({ error: 'Allotment not found' });
+  }
+
+  db.prepare('DELETE FROM allotments WHERE id = ?').run(req.params.id);
+  res.status(200).json({ message: 'Allotment deleted' });
 });
 
 module.exports = router;

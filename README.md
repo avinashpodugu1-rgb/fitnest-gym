@@ -13,6 +13,7 @@
 
 <br>
 
+[![Test](https://github.com/avinashpodugu1-rgb/fitnest-gym/actions/workflows/test.yml/badge.svg)](https://github.com/avinashpodugu1-rgb/fitnest-gym/actions/workflows/test.yml)
 [![Live API](https://img.shields.io/badge/Live%20API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://fitnest-gym-api.onrender.com)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
@@ -127,7 +128,15 @@ npm install
 npm start
 ```
 
-### Step 5: Access the API
+### Step 5: Run Automated Tests
+
+Execute the Jest test suite covering all API endpoints, validation, and error states:
+
+```bash
+npm test
+```
+
+### Step 6: Access the API
 
 The application runs at:
 
@@ -271,10 +280,10 @@ http://localhost:3000
 |---|---|---|---|
 | GET | `/lockers` | Retrieve all lockers | 200 |
 | GET | `/lockers?floor=Floor%202` | Search lockers by floor | 200 |
-| GET | `/lockers/:id` | Retrieve locker by ID | 200 |
-| POST | `/lockers` | Create a new locker | 201 |
-| PUT | `/lockers/:id` | Update locker details | 200 |
-| DELETE | `/lockers/:id` | Delete a locker | 200 |
+| GET | `/lockers/:id` | Retrieve locker by ID | 200, 404 |
+| POST | `/lockers` | Create a new locker (`name` must be unique) | 201, 400, 409 |
+| PUT | `/lockers/:id` | Update locker details | 200, 400, 404, 409 |
+| DELETE | `/lockers/:id` | Delete a locker (blocked if allotted; add `?force=true` to override) | 200, 404, 409 |
 
 **Example POST Request:**
 
@@ -290,8 +299,10 @@ http://localhost:3000
 | Method | Endpoint | Description | Status |
 |---|---|---|---|
 | GET | `/members` | Retrieve all members | 200 |
-| GET | `/members/:id` | Retrieve member by ID | 200 |
-| POST | `/members` | Register a new member | 201 |
+| GET | `/members/:id` | Retrieve member by ID | 200, 404 |
+| POST | `/members` | Register a new member | 201, 400 |
+| PUT | `/members/:id` | Update member name | 200, 400, 404 |
+| DELETE | `/members/:id` | Delete member (blocked if member has active allotments) | 200, 404, 409 |
 
 **Example POST Request:**
 
@@ -305,8 +316,10 @@ http://localhost:3000
 
 | Method | Endpoint | Description | Status |
 |---|---|---|---|
-| GET | `/allotments` | Retrieve all locker allotments | 200 |
-| POST | `/allotments` | Assign a locker to a member | 201 |
+| GET | `/allotments` | Retrieve all locker allotments (joined) | 200 |
+| GET | `/allotments/:id` | Retrieve single allotment details (joined) | 200, 404 |
+| POST | `/allotments` | Assign a locker to a member | 201, 400, 404 |
+| DELETE | `/allotments/:id` | Release a locker without deleting member or locker | 200, 404 |
 
 **Example POST Request:**
 
@@ -434,8 +447,34 @@ https://fitnest-gym-api.onrender.com
 |:---:|---|
 | `200` | OK – Request completed successfully |
 | `201` | Created – New resource created |
-| `400` | Bad Request – Invalid input or allotment conflict |
-| `404` | Not Found – Requested resource does not exist |
+| `400` | Bad Request – Invalid input, malformed JSON or allotment conflict |
+| `404` | Not Found – Requested resource or undefined route does not exist |
+| `409` | Conflict – Unique constraint violation or active allotment dependency |
+| `500` | Internal Server Error – Unexpected server error |
+
+### 🔒 Data Integrity & 409 Conflict Handling
+
+To guarantee data integrity and prevent accidental data loss, the API enforces:
+
+1. **Unique Locker Names**: Creating or updating a locker with a name that already exists returns `409 Conflict`:
+   ```json
+   { "error": "Locker name already exists" }
+   ```
+2. **Safe Member Deletion**: Deleting a member who still has an active locker allotment returns `409 Conflict`:
+   ```json
+   { "error": "Cannot delete member with active allotment" }
+   ```
+3. **Safe Locker Deletion**: Deleting a locker with an active allotment returns `409 Conflict`:
+   ```json
+   { "error": "Cannot delete locker with active allotment. Use ?force=true to override." }
+   ```
+   Passing `?force=true` (e.g. `DELETE /lockers/:id?force=true`) releases the allotment and deletes the locker.
+
+---
+
+## ⚠️ Known Limitations
+
+- **Ephemeral Storage on Render (Free Plan)**: SQLite uses a file (`fitnest.db`) within the container. On Render's free plan, instances spin down after inactivity and container filesystems are ephemeral. Any data added dynamically resets to the default seed state whenever the container restarts or redeploys. For permanent cloud persistence, persistent disks or an external database (e.g., PostgreSQL) can be used.
 
 ---
 

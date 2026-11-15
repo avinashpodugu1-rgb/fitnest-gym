@@ -37,12 +37,19 @@ router.post('/', (req, res) => {
   }
 
   const { name, floor } = req.body;
-  const result = db
-    .prepare('INSERT INTO lockers (name, floor) VALUES (?, ?)')
-    .run(name.trim(), floor);
+  try {
+    const result = db
+      .prepare('INSERT INTO lockers (name, floor) VALUES (?, ?)')
+      .run(name.trim(), floor);
 
-  const created = db.prepare('SELECT * FROM lockers WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(created);
+    const created = db.prepare('SELECT * FROM lockers WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(created);
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || (err.message && err.message.includes('UNIQUE'))) {
+      return res.status(409).json({ error: 'Locker name already exists' });
+    }
+    throw err;
+  }
 });
 
 // PUT /lockers/:id
@@ -58,24 +65,40 @@ router.put('/:id', (req, res) => {
   }
 
   const { name, floor } = req.body;
-  db.prepare('UPDATE lockers SET name = ?, floor = ? WHERE id = ?').run(
-    name.trim(),
-    floor,
-    req.params.id
-  );
+  try {
+    db.prepare('UPDATE lockers SET name = ?, floor = ? WHERE id = ?').run(
+      name.trim(),
+      floor,
+      req.params.id
+    );
 
-  const updated = db.prepare('SELECT * FROM lockers WHERE id = ?').get(req.params.id);
-  res.status(200).json(updated);
+    const updated = db.prepare('SELECT * FROM lockers WHERE id = ?').get(req.params.id);
+    res.status(200).json(updated);
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || (err.message && err.message.includes('UNIQUE'))) {
+      return res.status(409).json({ error: 'Locker name already exists' });
+    }
+    throw err;
+  }
 });
 
-// DELETE /lockers/:id  (also removes the locker's allotment, if it has one)
+// DELETE /lockers/:id
+// If locker has an allotment, return 409 unless ?force=true is passed
 router.delete('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM lockers WHERE id = ?').get(req.params.id);
   if (!existing) {
     return res.status(404).json({ error: 'Locker not found' });
   }
 
-  db.prepare('DELETE FROM allotments WHERE locker_id = ?').run(req.params.id);
+  const allotment = db.prepare('SELECT id FROM allotments WHERE locker_id = ?').get(req.params.id);
+  if (allotment) {
+    if (req.query.force === 'true') {
+      db.prepare('DELETE FROM allotments WHERE locker_id = ?').run(req.params.id);
+    } else {
+      return res.status(409).json({ error: 'Cannot delete locker with active allotment. Use ?force=true to override.' });
+    }
+  }
+
   db.prepare('DELETE FROM lockers WHERE id = ?').run(req.params.id);
   res.status(200).json({ message: 'Locker deleted' });
 });
