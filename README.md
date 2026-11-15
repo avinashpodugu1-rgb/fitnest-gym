@@ -86,8 +86,11 @@ Four contributors worked together to develop the FitNest Gym Locker Room API.
 | Express.js | Backend framework |
 | SQLite | Relational database |
 | better-sqlite3 | SQLite database integration |
-| Postman | API testing and validation |
-| Render | Application deployment |
+| Jest | Automated unit & integration testing framework |
+| Supertest | HTTP assertion library for endpoint testing |
+| Postman / Newman | API collection testing and automated test runner |
+| GitHub Actions | Automated CI pipeline (`npm test` on push & PR) |
+| Render | Cloud application deployment |
 | GitHub | Version control and collaboration |
 
 ---
@@ -188,19 +191,27 @@ Our backend application is deployed using **Render**.
 ```text
 fitnest-gym/
 │
+├── .env.example
+├── .github/
+│   └── workflows/
+│       └── test.yml
 ├── server.js
 ├── render.yaml
+├── package.json
 │
 ├── src/
 │   │
 │   ├── db.js
-│   │
+│   ├── dashboard.js
 │   ├── validation.js
 │   │
 │   └── routes/
 │       ├── lockers.js
 │       ├── members.js
 │       └── allotments.js
+│
+├── tests/
+│   └── api.test.js
 │
 └── postman/
     └── FitNest-Locker-API.postman_collection.json
@@ -210,14 +221,18 @@ fitnest-gym/
 
 | File | Responsibility |
 |---|---|
-| `server.js` | Express server setup, route registration and root interactive dashboard |
-| `db.js` | SQLite database connection, table schemas and automatic seed initialization |
-| `validation.js` | Input validation and allowed-floor restrictions |
-| `lockers.js` | Locker CRUD operations and floor search |
-| `members.js` | Member management endpoints |
-| `allotments.js` | Locker allotment and joined data retrieval |
+| `server.js` | Express server setup, route mounting, catch-all 404 & global error middleware |
+| `src/dashboard.js` | Modular HTML dashboard generator with live status and endpoint badges |
+| `src/db.js` | SQLite connection, table schemas with UNIQUE constraints, and auto seed |
+| `src/validation.js` | Input validation and allowed-floor restrictions |
+| `src/routes/lockers.js` | Locker CRUD, floor search, and 409 conflict checks |
+| `src/routes/members.js` | Member management (GET, POST, PUT, and protected DELETE) |
+| `src/routes/allotments.js` | Locker allotment, single allotment retrieval, release, and JOIN queries |
+| `tests/api.test.js` | 20 automated integration tests using Jest and Supertest |
+| `.github/workflows/test.yml` | GitHub Actions CI workflow executing `npm test` on Node 20 |
+| `.env.example` | Template environment configuration (`PORT`, `DB_FILE`) |
 | `render.yaml` | Render Blueprint configuration for automated cloud deployment |
-| Postman Collection | API testing and automated test requests |
+| Postman Collection | Comprehensive Postman collection covering all endpoints |
 
 ---
 
@@ -241,7 +256,7 @@ Stores available locker information.
 | Column | Description |
 |---|---|
 | id | Primary Key |
-| name | Locker Name |
+| name | Locker Name (UNIQUE) |
 | floor | Floor Number |
 
 ### 3. Allotments Table
@@ -408,7 +423,44 @@ If an invalid floor is provided, the API returns HTTP 400 and displays the allow
 
 ---
 
-## 🧪 API Testing with Postman
+## 🧪 Automated Testing (Jest & Supertest)
+
+The project includes an automated test suite with **20 integration tests** in `tests/api.test.js` using Jest and Supertest.
+
+### Running Tests
+
+To run the automated tests against an isolated, in-memory SQLite database:
+
+```bash
+npm test
+```
+
+### What the Test Suite Covers
+
+| Test Group | Scenarios Tested |
+|---|---|
+| **Locker Management** | Create locker (201), get locker (200), update locker (200), delete locker (200) |
+| **Floor Restrictions** | Invalid floor returns 400 with allowed values list; valid floors accepted |
+| **Input Validation** | Missing name or blank name returns 400 |
+| **Floor Search Filter** | `GET /lockers?floor=Floor 2` returns exact matches; invalid floor returns 400 |
+| **Member Operations** | Create member (201), update member name (200), validation on empty name (400) |
+| **Allotment Logic** | Allot free locker (201), duplicate locker allotment rejection (400), unknown IDs (404) |
+| **Allotment Endpoints** | `GET /allotments/:id` (200/404), `DELETE /allotments/:id` release locker (200) |
+| **409 Conflict Handling** | Duplicate locker name (409), delete member with active allotment (409), delete allotted locker without force (409) |
+| **Force Delete** | `DELETE /lockers/:id?force=true` releases allotment and deletes locker (200) |
+| **Error Middleware** | Undefined routes return 404 `{ error: "Route not found" }`, malformed JSON body returns 400 `{ error: "Invalid JSON body" }` |
+
+### CI / CD Pipeline
+
+Continuous Integration is configured via [GitHub Actions](.github/workflows/test.yml). On every `push` and `pull_request` to `main`, the test workflow:
+1. Checks out the code.
+2. Sets up Node.js 20.
+3. Installs dependencies using `npm ci`.
+4. Executes `npm test` to verify 100% test pass rate.
+
+---
+
+## 📮 API Testing with Postman
 
 We have included a Postman collection to test the API endpoints.
 
