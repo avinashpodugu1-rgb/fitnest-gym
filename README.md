@@ -1,6 +1,6 @@
 # FitNest Gym – Locker Room API
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/avinashpodugu1-rgb/fitnest-gym)
+
 
 **Live API**: [https://fitnest-gym-api.onrender.com](https://fitnest-gym-api.onrender.com)
 
