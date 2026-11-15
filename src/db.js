@@ -31,13 +31,13 @@ if (process.env.NODE_ENV !== 'test' && process.env.DB_FILE !== ':memory:') {
   const memberCount = db.prepare('SELECT COUNT(*) as count FROM members').get().count;
   if (memberCount === 0) {
     const insertMember = db.prepare('INSERT INTO members (name) VALUES (?)');
-    const m1 = insertMember.run('Asha Rao');
-    const m2 = insertMember.run('Bikram Sen');
+    const m1 = insertMember.run('John Doe');
+    const m2 = insertMember.run('Jane Smith');
 
     const insertLocker = db.prepare('INSERT INTO lockers (name, floor) VALUES (?, ?)');
-    const l1 = insertLocker.run('A-101', 'Floor 1');
-    const l2 = insertLocker.run('B-201', 'Floor 2');
-    const l3 = insertLocker.run('C-301', 'Floor 3');
+    const l1 = insertLocker.run('FIT-101', 'Floor 1');
+    const l2 = insertLocker.run('FIT-201', 'Floor 2');
+    const l3 = insertLocker.run('FIT-301', 'Floor 3');
 
     db.prepare('INSERT INTO allotments (member_id, locker_id) VALUES (?, ?)').run(
       m1.lastInsertRowid,
