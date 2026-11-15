@@ -49,6 +49,8 @@ Our goal is to replace manual locker tracking with a reliable and efficient digi
 
 | Feature | Description |
 |---|---|
+| 🖥️ Interactive Dashboard | Root web dashboard with live status indicators, counts and direct links. |
+| ⚡ Auto Data Seeding | Automatically initializes sample members, lockers and allotments on startup. |
 | 👤 Member Management | Create and retrieve gym member records. |
 | 🔐 Locker Management | Create, view, update and delete lockers. |
 | 🔗 Locker Allotment | Assign lockers to registered members. |
@@ -178,6 +180,7 @@ Our backend application is deployed using **Render**.
 fitnest-gym/
 │
 ├── server.js
+├── render.yaml
 │
 ├── src/
 │   │
@@ -198,12 +201,13 @@ fitnest-gym/
 
 | File | Responsibility |
 |---|---|
-| `server.js` | Express server setup and route registration |
-| `db.js` | SQLite database connection and table creation |
+| `server.js` | Express server setup, route registration and root interactive dashboard |
+| `db.js` | SQLite database connection, table schemas and automatic seed initialization |
 | `validation.js` | Input validation and allowed-floor restrictions |
 | `lockers.js` | Locker CRUD operations and floor search |
 | `members.js` | Member management endpoints |
 | `allotments.js` | Locker allotment and joined data retrieval |
+| `render.yaml` | Render Blueprint configuration for automated cloud deployment |
 | Postman Collection | API testing and automated test requests |
 
 ---
@@ -252,6 +256,14 @@ Stores the relationship between members and lockers.
 ```text
 http://localhost:3000
 ```
+
+*Live Production Base URL:* `https://fitnest-gym-api.onrender.com`
+
+### 🌐 System & Dashboard Endpoints
+
+| Method | Endpoint | Description | Status |
+|---|---|---|---|
+| GET | `/` | Visual interactive dashboard (browser) or JSON API status & route directory | 200 |
 
 ### 🔐 Locker Endpoints
 
