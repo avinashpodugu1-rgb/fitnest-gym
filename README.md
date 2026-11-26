@@ -530,34 +530,59 @@ To guarantee data integrity and prevent accidental data loss, the API enforces:
 
 ---
 
-## 🎯 Project Objectives
+## 🎓 Course Syllabus & Curriculum Alignment (Modules 1–3)
 
-Through this project, we aimed to:
+This project is built strictly to fulfill and demonstrate every topic in the **Backend Development Fundamentals (Modules 1 to 3)** curriculum:
 
-- Understand backend application development.
-- Implement RESTful API architecture.
-- Work with relational databases.
-- Perform CRUD operations.
-- Implement input validation.
-- Understand database relationships and constraints.
-- Test APIs using Postman.
-- Deploy backend applications using Render.
-- Collaborate as a team using GitHub.
+### 📘 Module 1 – Node.js and Express.js Fundamentals
+
+| Syllabus Topic | Implementation in FitNest Gym |
+|---|---|
+| **Introduction to Backend Development** | Implemented a dedicated server architecture managing business rules, data persistence, and API services for gym operations. |
+| **JavaScript Concepts for Backend Development** | Utilized modern ES6+ JavaScript, CommonJS modularization (`require` / `module.exports`), arrow functions, destructuring, and object manipulation. |
+| **Node.js Basics & Environment Setup** | Configured runtime environment, script execution (`node server.js`), and environment variable parsing via `process.env`. |
+| **NPM and Package Management** | Managed project manifest (`package.json`), dependencies (`express`, `better-sqlite3`), devDependencies (`jest`, `supertest`), and npm scripts. |
+| **HTTP Server Setup** | Initialized Express application in `server.js` listening on configurable ports (`process.env.PORT || 3000`). |
+| **HTTP Methods and Status Codes** | Handled GET, POST, PUT, DELETE with exact status codes (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `409 Conflict`, `500 Server Error`). |
+| **Handling HTTP Requests and Responses** | Parsed incoming HTTP requests via `req.body`, `req.params`, and `req.query`, delivering formatted responses using `res.status().json()`. |
+| **Express.js Introduction** | Initialized Express application instance and applied global JSON body parsing middleware (`express.json()`). |
+| **Routing and Modular Routing** | Structured routing with `express.Router()` into modular route files: `src/routes/lockers.js`, `src/routes/members.js`, and `src/routes/allotments.js`. |
+| **Request and Response Objects** | Leveraged `req` properties (`req.params.id`, `req.query.floor`, `req.body`) and `res` methods (`res.status()`, `res.json()`, `res.send()`). |
+| **Basic Error Handling** | Implemented a catch-all 404 handler for unknown routes and global error middleware for malformed JSON and server exceptions. |
 
 ---
 
-## 📚 Learning Outcomes
+### 📙 Module 2 – SQLite and Relational Database Operations
 
-By developing this project, our team gained practical experience in:
+| Syllabus Topic | Implementation in FitNest Gym |
+|---|---|
+| **Introduction to SQLite** | Utilized lightweight, self-contained serverless relational SQLite database (`fitnest.db` / in-memory `:memory:`). |
+| **SQLite Database Creation and Integration** | Initialized database connection using `better-sqlite3` in `src/db.js`. |
+| **Database Schema and Tables** | Defined 3 relational tables: `members`, `lockers`, and `allotments` using structured DDL (`CREATE TABLE IF NOT EXISTS`). |
+| **Primary Keys and Constraints** | Enforced `INTEGER PRIMARY KEY AUTOINCREMENT`, `NOT NULL`, `UNIQUE` on `lockers.name`, `FOREIGN KEY` references on allotments, and `UNIQUE` on `allotments.locker_id`. |
+| **SQL Query Writing** | Authored clean SQL queries for table creation, data insertion, retrieval, record updates, and deletions. |
+| **Parameterized Queries** | Utilized prepared statements with `?` parameter placeholders across all routes to prevent SQL injection vulnerabilities. |
+| **Basic Joins** | Authored a 3-table relational SQL `JOIN` in `src/routes/allotments.js` combining `allotments`, `members`, and `lockers` to return member and locker names. |
+| **CRUD Operations** | Implemented full Create, Read, Update, and Delete operations for lockers and members, alongside allotment assignments and releases. |
+| **Integrating SQLite with Node.js** | Seamlessly integrated SQLite prepared statements (`.prepare()`, `.all()`, `.get()`, `.run()`) within Express route handlers. |
 
-- Node.js and Express.js development.
-- SQLite database management.
-- REST API design and implementation.
-- Request validation and error handling.
-- Query parameters and database joins.
-- API testing and debugging.
-- Cloud deployment.
-- Team collaboration and project management.
+---
+
+### 📗 Module 3 – RESTful API Development and Validation
+
+| Syllabus Topic | Implementation in FitNest Gym |
+|---|---|
+| **REST Principles** | Implemented stateless, resource-oriented architecture separating client and server concerns. |
+| **RESTful API Architecture** | Structured endpoints logically around resource collections: `/members`, `/lockers`, and `/allotments`. |
+| **API Endpoints and HTTP Methods** | Designed 12 REST endpoints covering CRUD and relational queries mapped to standard HTTP verbs. |
+| **Request & Query Parameters** | Utilized route parameters (`/lockers/:id`, `/members/:id`) and query parameters (`/lockers?floor=Floor 2`, `/lockers/:id?force=true`). |
+| **RESTful API Development** | Built robust end-to-end API handlers connecting HTTP requests directly to database transactions. |
+| **JSON Request & Response Handling** | Configured bidirectional JSON data transfer for incoming payloads and API response serialization. |
+| **Request Validation** | Implemented comprehensive validation rules in `src/validation.js` for names, floor existence, and allowed floor values. |
+| **Response Formatting** | Standardized JSON payload structures and error formats (`{ "error": "<message>" }`). |
+| **HTTP Status Codes** | Applied precise HTTP status codes reflecting operation outcomes (`200`, `201`, `400`, `404`, `409`, `500`). |
+| **API Testing** | Built and executed an automated 26-request Postman/Newman collection and a 20-test Jest integration suite. |
+| **Debugging** | Tested and resolved database constraint conflicts, input validation edge cases, and error response formatting. |
 
 ---
 
